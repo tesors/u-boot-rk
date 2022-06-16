@@ -580,6 +580,8 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 		}
 	}
 
+	msleep(200);
+
 	if (priv->is_bifurcation) {
 		phy_cfg.pcie.is_bifurcation = true;
 		ret = generic_phy_configure(&priv->phy, &phy_cfg);
