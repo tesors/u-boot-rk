@@ -516,11 +516,20 @@ static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
 	/* DW pre link configurations */
 	rk_pcie_configure(priv, cap_speed);
 
-	/* Rest the device */
+	/* Release the device */
 	if (dm_gpio_is_valid(&priv->rst_gpio)) {
-		dm_gpio_set_value(&priv->rst_gpio, 0);
-		msleep(1000);
+		/*
+		 * T_PVPERL (Power stable to PERST# inactive) should be a minimum of 100ms.
+		 * We add a 200ms by default for sake of hoping everthings
+		 * work fine.
+		 */
+		msleep(200);
 		dm_gpio_set_value(&priv->rst_gpio, 1);
+		/*
+		 * Add this 20ms delay because we observe link is always up stably after it and
+		 * could help us save 20ms for scanning devices.
+		 */
+		msleep(20);
 	}
 
 	rk_pcie_disable_ltssm(priv);
