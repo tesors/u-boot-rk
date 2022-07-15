@@ -490,12 +490,12 @@
 	status = "okay";
 };
 
-&sata1 {
+&sata2 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
-&combphy1_usq {
+&combphy2_psq {
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };
@@ -504,7 +504,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pipe_phy_grf1{
+&pipe_phy_grf2 {
 	u-boot,dm-pre-reloc;
 };
 
