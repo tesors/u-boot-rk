@@ -128,11 +128,10 @@ finish:
 	       env_get("devtype"), env_get("devnum"));
 }
 
-static int get_bootdev_type(void)
+int get_bootdev_type(void)
 {
 	char *boot_media = NULL, *devtype = NULL;
 	char boot_options[128] = {0};
-	static int appended;
 	ulong devnum = 0;
 	int type = 0;
 
@@ -169,6 +168,9 @@ static int get_bootdev_type(void)
 	} else if (!strcmp(devtype, "scsi")) {
 		type = IF_TYPE_SCSI;
 		boot_media = "scsi";
+	} else if (!strcmp(devtype, "usb")) {
+		type = IF_TYPE_USB;
+		boot_media = "usb";
 	} else if (!strcmp(devtype, "nvme")) {
 		type = IF_TYPE_NVME;
 		boot_media = "nvme";
@@ -176,8 +178,7 @@ static int get_bootdev_type(void)
 		/* Add new to support */
 	}
 
-	if (!appended && boot_media) {
-		appended = 1;
+	if (boot_media) {
 
 	/*
 	 * The legacy rockchip Android (SDK < 8.1) requires "androidboot.mode="

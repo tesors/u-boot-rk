@@ -82,6 +82,12 @@
 	#define BOOT_TARGET_RKNAND(func)
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_SCSI)
+	#define BOOT_TARGET_SCSI(func) func(SCSI, scsi, 0)
+#else
+	#define BOOT_TARGET_SCSI(func)
+#endif
+
 #if CONFIG_IS_ENABLED(CMD_USB)
 	#define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else
@@ -104,6 +110,7 @@
 	BOOT_TARGET_MMC(func) \
 	BOOT_TARGET_MTD(func) \
 	BOOT_TARGET_RKNAND(func) \
+	BOOT_TARGET_SCSI(func) \
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_PXE(func) \
 	BOOT_TARGET_DHCP(func)
@@ -180,5 +187,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_SYS_AUTOLOAD	"no"
+#define CONFIG_SPL_LOAD_FIT_ADDRESS		0x2000000
 
 #endif /* _ROCKCHIP_COMMON_H_ */
