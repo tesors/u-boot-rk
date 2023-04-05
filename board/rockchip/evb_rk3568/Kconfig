@@ -13,3 +13,19 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 
 endif
+
+if TARGET_IXON_RK3568
+
+config SYS_BOARD
+	default "evb_rk3568"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "ixon_rk3568"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
