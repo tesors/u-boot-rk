@@ -6,6 +6,12 @@ config TARGET_EVB_RK3568
 	help
 	  RK3568 EVB is a evaluation board for Rockchp RK3568.
 
+config TARGET_IXON_RK3568
+	bool "IXON_RK3568"
+	select BOARD_LATE_INIT
+	help
+	  RK3568 IXON IXrouter board
+
 config SYS_SOC
 	default "rockchip"
 
