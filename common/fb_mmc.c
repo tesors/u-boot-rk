@@ -299,15 +299,15 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 	u64 disksize = 0;
 	char reason[128] = {0};
 #endif
-#ifdef CONFIG_RKIMG_BOOTLOADER
-	dev_desc = rockchip_get_bootdev();
-	if (!dev_desc) {
-		printf("%s: dev_desc is NULL!\n", __func__);
-		return;
-	}
-#else
+// #ifdef CONFIG_RKIMG_BOOTLOADER
+// 	dev_desc = rockchip_get_bootdev();
+// 	if (!dev_desc) {
+// 		printf("%s: dev_desc is NULL!\n", __func__);
+// 		return;
+// 	}
+// #else
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
-#endif
+// #endif
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
 		pr_err("invalid mmc device\n");
 		fastboot_fail("invalid mmc device", response);
