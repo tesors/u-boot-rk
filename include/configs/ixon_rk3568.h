@@ -20,12 +20,15 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND RKIMG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND IXON_BOOTCOMMAND
 
 #define PARTS_IXON \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name=root_a,size=7168MB,uuid=${uuid_gpt_root_a};" \
-	"name=root_b,size=7168MB,uuid=${uuid_gpt_root_b};\0" \
+	"name=roota,start=32MB,size=7168MB,uuid=${uuid_gpt_roota};" \
+	"name=rootb,size=7168MB,uuid=${uuid_gpt_rootb};\0" \
+
+#define IXON_BOOTCOMMAND			\
+	"run scan_dev_for_boot_part;"
 
 #ifndef CONFIG_SPL_BUILD
 #undef CONFIG_EXTRA_ENV_SETTINGS
