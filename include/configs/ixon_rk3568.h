@@ -20,23 +20,16 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #undef CONFIG_BOOTCOMMAND
-<<<<<<< Updated upstream
-=======
+
 #define IXON_BOOTCOMMAND			\
 	"run scan_dev_for_boot_part;"
->>>>>>> Stashed changes
 #define CONFIG_BOOTCOMMAND IXON_BOOTCOMMAND
 
 #define PARTS_IXON \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=roota,start=32MB,size=7168MB,uuid=${uuid_gpt_roota};" \
 	"name=rootb,size=7168MB,uuid=${uuid_gpt_rootb};\0" \
-<<<<<<< Updated upstream
 
-#define IXON_BOOTCOMMAND			\
-	"run scan_dev_for_boot_part;"
-=======
->>>>>>> Stashed changes
 
 #ifndef CONFIG_SPL_BUILD
 #undef CONFIG_EXTRA_ENV_SETTINGS
