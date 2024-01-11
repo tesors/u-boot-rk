@@ -26,7 +26,7 @@
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=roota,start=32MB,size=2048MB,uuid=${uuid_gpt_roota};" \
 	"name=rootb,start=2080MB,size=2048MB,uuid=${uuid_gpt_rootb};" \
-	"name=data,size=-,uuid=${uuid_gpt_data};\0" \
+	"name=data,size=-,uuid=${uuid_gpt_data},type=data;\0" \
 
 #define IXON_BOOTCOMMAND			\
 	"run scan_dev_for_boot_part;"
