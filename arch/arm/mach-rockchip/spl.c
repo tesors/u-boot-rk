@@ -345,6 +345,10 @@ bool spl_is_low_power(void)
 
 void spl_next_stage(struct spl_image_info *spl)
 {
+<<<<<<< HEAD
+=======
+	const char *reason[] = { "Recovery key", "Ctrl+c", "LowPwr", "Other" };
+>>>>>>> c07b486e4f (rockchip: spl: Improve handle of boot mode reg info when deciding next stage)
 	uint32_t reg_boot_mode;
 
 	if (spl_rockchip_dnl_key_pressed()) {
@@ -360,15 +364,19 @@ void spl_next_stage(struct spl_image_info *spl)
 
 	reg_boot_mode = readl((void *)CONFIG_ROCKCHIP_BOOT_MODE_REG);
 	switch (reg_boot_mode) {
-	case BOOT_COLD:
-	case BOOT_PANIC:
-	case BOOT_WATCHDOG:
-	case BOOT_NORMAL:
-	case BOOT_RECOVERY:
-		spl->next_stage = SPL_NEXT_STAGE_KERNEL;
-		break;
-	default:
+	case BOOT_LOADER:
+	case BOOT_FASTBOOT:
+	case BOOT_CHARGING:
+	case BOOT_UMS:
+	case BOOT_DFU:
+		i = 3;
 		spl->next_stage = SPL_NEXT_STAGE_UBOOT;
+	default:
+<<<<<<< HEAD
+		spl->next_stage = SPL_NEXT_STAGE_UBOOT;
+=======
+		spl->next_stage = SPL_NEXT_STAGE_KERNEL;
+>>>>>>> c07b486e4f (rockchip: spl: Improve handle of boot mode reg info when deciding next stage)
 	}
 }
 #endif
