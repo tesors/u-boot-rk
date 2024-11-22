@@ -18,6 +18,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* QOS MMU600PHP-USB3_2 & SATA0-2 & GMAC0-1 */
+#define QOS_MMU600PHP_TBU_BASE		0xfdf3a608
+#define QOS_MMU600PHP_TCU_BASE		0xfdf3a808
+#define QOS_PRIORITY_LEVEL(h, l)	((((h) & 7) << 8) | ((l) & 7))
+
 #define FIREWALL_DDR_BASE		0xfe030000
 #define FW_DDR_MST5_REG			0x54
 #define FW_DDR_MST13_REG		0x74
@@ -966,7 +971,7 @@ int arch_cpu_init(void)
 		writel(0x07000200, EMMC_IOC_BASE + EMMC_IOC_GPIO2D_DS_H);
 	} else if (readl(BUS_IOC_BASE + BUS_IOC_GPIO2D_IOMUX_SEL_L) == 0x1111) {
 		/*
-		 * set the emmc io drive strength:
+		 * Set the emmc io drive strength:
 		 * data and cmd: 50ohm
 		 * clock: 25ohm
 		 */
@@ -984,6 +989,11 @@ int arch_cpu_init(void)
 		writel(0x00700020, VCCIO3_5_IOC_BASE + IOC_VCCIO3_5_GPIO3A_DS_H);
 		writel(0x00070002, VCCIO3_5_IOC_BASE + IOC_VCCIO3_5_GPIO3C_DS_H);
 	}
+
+	/* Set emmc iomux for good extention if the emmc is not the boot device */
+	writel(0xffff1111, BUS_IOC_BASE + BUS_IOC_GPIO2A_IOMUX_SEL_L);
+	writel(0xffff1111, BUS_IOC_BASE + BUS_IOC_GPIO2D_IOMUX_SEL_L);
+	writel(0xffff1111, BUS_IOC_BASE + BUS_IOC_GPIO2D_IOMUX_SEL_H);
 
 	/*
 	 * Assert reset the pipephy0, pipephy1 and pipephy2,
@@ -1041,6 +1051,9 @@ int arch_cpu_init(void)
 	secure_reg &= 0xffff0000;
 	writel(secure_reg, FIREWALL_SYSMEM_BASE + FW_SYSM_MST27_REG);
 #else /* U-Boot */
+	/* Increase MMU600PHP QOS from 0 to 4 */
+	writel(QOS_PRIORITY_LEVEL(4, 4), QOS_MMU600PHP_TBU_BASE);
+	writel(QOS_PRIORITY_LEVEL(4, 4), QOS_MMU600PHP_TCU_BASE);
 	/* uboot: config iomux */
 #ifdef CONFIG_ROCKCHIP_EMMC_IOMUX
 	/* Set emmc iomux for good extention if the emmc is not the boot device */

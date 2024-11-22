@@ -76,6 +76,8 @@
 
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
 
+#define CONFIG_MISC_INIT_R
+
 #ifndef CONFIG_SPL_BUILD
 /* usb mass storage */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
@@ -85,6 +87,7 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00c00000\0" \
 	"pxefile_addr_r=0x00e00000\0" \
+	"fdtoverlay_addr_r=0x08200000\0" \
 	"fdt_addr_r=0x08300000\0" \
 	"kernel_addr_r=0x00280000\0" \
 	"kernel_addr_c=0x04080000\0" \
@@ -94,6 +97,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
+	"fdtfile=" FDTFILE \
 	"partitions=" PARTS_RKIMG \
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \

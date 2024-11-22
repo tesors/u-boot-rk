@@ -77,10 +77,15 @@
 #define CONFIG_ROCKUSB_G_DNL_PID	0x350c
 #define ROCKUSB_FSG_BUFLEN		0x400000
 
+#define CONFIG_MISC_INIT_R
+
+#define CONFIG_ID_EEPROM
+
 #ifdef CONFIG_ARM64
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00c00000\0" \
 	"pxefile_addr_r=0x00e00000\0" \
+	"fdtoverlay_addr_r=0x08200000\0" \
 	"fdt_addr_r=0x08300000\0" \
 	"kernel_addr_r=0x00280000\0" \
 	"kernel_addr_c=0x04080000\0" \
@@ -99,6 +104,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
+	"fdtfile=" FDTFILE \
 	"partitions=" PARTS_RKIMG \
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \

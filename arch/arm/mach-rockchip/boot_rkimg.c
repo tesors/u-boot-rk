@@ -330,12 +330,22 @@ __weak int rockchip_dnl_key_pressed(void)
 void setup_download_mode(void)
 {
 	int vbus = 1; /* Assumed 1 in case of no rockusb */
+	const void *blob = gd->fdt_blob;
 
 	boot_devtype_init();
 
 	if (rockchip_dnl_key_pressed() || is_hotkey(HK_ROCKUSB_DNL)) {
 		printf("download %skey pressed... ",
 		       is_hotkey(HK_ROCKUSB_DNL) ? "hot" : "");
+		if ((fdt_node_offset_by_compatible(blob, -1, "radxa,rock-5-itx")) >= 0 &&
+			!run_command("test -e mmc 0:3 /boot/extlinux/extlinux.conf", 0)) {
+			printf("\nForce to boot from eMMC!\n");
+			run_command("sysboot mmc 0:3 any 0x00500000 /boot/extlinux/extlinux.conf", 0);
+		} else if ((fdt_node_offset_by_compatible(blob, -1, "radxa,e25")) >= 0) {
+			printf("\nTurn on Blue LED on Radxa E25!\n");
+			run_command("led blue on", 0);
+		}
+
 #ifdef CONFIG_CMD_ROCKUSB
 		vbus = rockchip_u2phy_vbus_detect();
 #endif
@@ -347,6 +357,9 @@ void setup_download_mode(void)
 			/* try rockusb download and brom download */
 			run_command("download", 0);
 		} else {
+			if ((fdt_node_offset_by_compatible(blob, -1, "radxa,rockpie")) >= 0) {
+				run_command("download", 0);
+			}
 			printf("entering recovery mode!\n");
 			env_set("reboot_mode", "recovery-key");
 		}

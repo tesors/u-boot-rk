@@ -934,7 +934,7 @@ int arch_cpu_init(void)
 
 	/* Set the fspi to secure */
 	writel(((0x1 << 14) << 16) | (0x0 << 14), SGRF_BASE + SGRF_SOC_CON3);
-#else /* U-Boot */
+#endif /* U-Boot */
 	/* uboot: config iomux */
 #if defined(CONFIG_ROCKCHIP_SFC_IOMUX)
 	writel((0x70002000), GRF_BASE + GRF_GPIO1C_IOMUX_H);
@@ -945,7 +945,9 @@ int arch_cpu_init(void)
 	writel((0x77771111), GRF_BASE + GRF_GPIO1C_IOMUX_L);
 	writel((0x07770111), GRF_BASE + GRF_GPIO1C_IOMUX_H);
 #endif
-#endif
+
+	/* Set i2c0 iomux */
+	writel(0x07700110, 0xfdc20008);
 
 	return 0;
 }
