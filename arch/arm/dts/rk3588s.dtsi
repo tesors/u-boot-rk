@@ -44,6 +44,11 @@
 		spi3 = &spi3;
 		spi4 = &spi4;
 		spi5 = &sfc;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
 	};
 
 	cpus {
@@ -253,6 +258,8 @@
 			resets = <&cru SRST_A_USB3OTG0>;
 			reset-names = "usb3-otg";
 			dr_mode = "otg";
+			phys = <&u2phy0_otg>;
+			phy-names = "usb2-phy";
 			phy_type = "utmi_wide";
 			snps,dis_enblslpm_quirk;
 			snps,dis-u1-entry-quirk;
@@ -265,11 +272,14 @@
 	};
 
 	usb_host0_ehci: usb@fc800000 {
-		compatible = "generic-ehci";
+		compatible = "rockchip,rk3588-ehci", "generic-ehci";
 		reg = <0x0 0xfc800000 0x0 0x40000>;
 		interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_HOST0>, <&cru HCLK_HOST_ARB0>;
-		clock-names = "usbhost", "arbiter";
+		clocks = <&cru HCLK_HOST0>, <&cru HCLK_HOST_ARB0>, <&u2phy2>;
+		clock-names = "usbhost", "arbiter", "utmi";
+		companion = <&usb_host0_ohci>;
+		phys = <&u2phy2_host>;
+		phy-names = "usb2-phy";
 		power-domains = <&power RK3588_PD_USB>;
 		status = "disabled";
 	};
@@ -278,18 +288,23 @@
 		compatible = "generic-ohci";
 		reg = <0x0 0xfc840000 0x0 0x40000>;
 		interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_HOST0>, <&cru HCLK_HOST_ARB0>;
-		clock-names = "usbhost", "arbiter";
+		clocks = <&cru HCLK_HOST0>, <&cru HCLK_HOST_ARB0>, <&u2phy2>;
+		clock-names = "usbhost", "arbiter", "utmi";
+		phys = <&u2phy2_host>;
+		phy-names = "usb2-phy";
 		power-domains = <&power RK3588_PD_USB>;
 		status = "disabled";
 	};
 
 	usb_host1_ehci: usb@fc880000 {
-		compatible = "generic-ehci";
+		compatible = "rockchip,rk3588-ehci", "generic-ehci";
 		reg = <0x0 0xfc880000 0x0 0x40000>;
 		interrupts = <GIC_SPI 218 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST_ARB1>;
-		clock-names = "usbhost", "arbiter";
+		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST_ARB1>, <&u2phy3>;
+		clock-names = "usbhost", "arbiter", "utmi";
+		companion = <&usb_host1_ohci>;
+		phys = <&u2phy3_host>;
+		phy-names = "usb2-phy";
 		power-domains = <&power RK3588_PD_USB>;
 		status = "disabled";
 	};
@@ -298,8 +313,10 @@
 		compatible = "generic-ohci";
 		reg = <0x0 0xfc8c0000 0x0 0x40000>;
 		interrupts = <GIC_SPI 219 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST_ARB1>;
-		clock-names = "usbhost", "arbiter";
+		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST_ARB1>, <&u2phy3>;
+		clock-names = "usbhost", "arbiter", "utmi";
+		phys = <&u2phy3_host>;
+		phy-names = "usb2-phy";
 		power-domains = <&power RK3588_PD_USB>;
 		status = "disabled";
 	};
@@ -406,6 +423,8 @@
 			compatible = "rockchip,rk3588-usb2phy";
 			reg = <0x0 0x10>;
 			interrupts = <GIC_SPI 393 IRQ_TYPE_LEVEL_HIGH>;
+			resets = <&cru SRST_OTGPHY_U3_0>, <&cru SRST_P_USB2PHY_U3_0_GRF0>;
+			reset-names = "phy", "apb";
 			clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>;
 			clock-names = "phyclk";
 			#clock-cells = <0>;
@@ -429,8 +448,11 @@
 			compatible = "rockchip,rk3588-usb2phy";
 			reg = <0x8000 0x10>;
 			interrupts = <GIC_SPI 391 IRQ_TYPE_LEVEL_HIGH>;
+			resets = <&cru SRST_OTGPHY_U2_0>, <&cru SRST_P_USB2PHY_U2_0_GRF0>;
+			reset-names = "phy", "apb";
 			clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>;
 			clock-names = "phyclk";
+			clock-output-names = "usb480m_phy2";
 			#clock-cells = <0>;
 			status = "disabled";
 
@@ -452,8 +474,11 @@
 			compatible = "rockchip,rk3588-usb2phy";
 			reg = <0xc000 0x10>;
 			interrupts = <GIC_SPI 392 IRQ_TYPE_LEVEL_HIGH>;
+			resets = <&cru SRST_OTGPHY_U2_1>, <&cru SRST_P_USB2PHY_U2_1_GRF0>;
+			reset-names = "phy", "apb";
 			clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>;
 			clock-names = "phyclk";
+			clock-output-names = "usb480m_phy3";
 			#clock-cells = <0>;
 			status = "disabled";
 
@@ -2239,6 +2264,7 @@
 	usbdp_phy0: phy@fed80000 {
 		compatible = "rockchip,rk3588-usbdp-phy";
 		reg = <0x0 0xfed80000 0x0 0x10000>;
+		rockchip,u2phy-grf = <&usb2phy0_grf>;
 		rockchip,usb-grf = <&usb_grf>;
 		rockchip,usbdpphy-grf = <&usbdpphy0_grf>;
 		rockchip,vo-grf = <&vo0_grf>;

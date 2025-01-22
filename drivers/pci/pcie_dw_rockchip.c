@@ -18,8 +18,41 @@
 #include <asm-generic/gpio.h>
 #include <asm/arch-rockchip/clock.h>
 #include <linux/iopoll.h>
+#include <linux/ioport.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define RK_PCIE_DBG			0
+
+#define __pcie_dev_print_emit(fmt, ...) \
+({ \
+	printf(fmt, ##__VA_ARGS__); \
+})
+
+#ifdef dev_err
+#undef dev_err
+#define dev_err(dev, fmt, ...) \
+({ \
+	if (dev) \
+		__pcie_dev_print_emit("%s: " fmt, dev->name, \
+				##__VA_ARGS__); \
+})
+#endif
+
+#ifdef dev_info
+#undef dev_info
+#define dev_info dev_err
+#endif
+
+#ifdef DEBUG
+#define dev_dbg dev_err
+#else
+#define dev_dbg(dev, fmt, ...)					\
+({								\
+	if (0)							\
+		__dev_printk(7, dev, fmt, ##__VA_ARGS__);	\
+})
+#endif
 
 struct rk_pcie {
 	struct udevice	*dev;
@@ -35,6 +68,7 @@ struct rk_pcie {
 	struct gpio_desc	rst_gpio;
 	struct pci_region	io;
 	struct pci_region	mem;
+	struct pci_region	mem64;
 	bool		is_bifurcation;
 	u32 gen;
 };
@@ -62,7 +96,6 @@ enum {
 #define PCIE_CLIENT_DBG_FIFO_STATUS	0x350
 #define PCIE_CLIENT_DBG_TRANSITION_DATA	0xffff0000
 #define PCIE_CLIENT_DBF_EN		0xffff0003
-#define RK_PCIE_DBG			0
 
 /* PCI DBICS registers */
 #define PCIE_LINK_STATUS_REG		0x80
@@ -97,6 +130,7 @@ enum {
 #define PCIE_ATU_UNR_LOWER_TARGET	0x14
 #define PCIE_ATU_UNR_UPPER_TARGET	0x18
 
+#define PCIE_ATU_REGION_INDEX2		(0x2 << 0)
 #define PCIE_ATU_REGION_INDEX1		(0x1 << 0)
 #define PCIE_ATU_REGION_INDEX0		(0x0 << 0)
 #define PCIE_ATU_TYPE_MEM		(0x0 << 0)
@@ -118,6 +152,8 @@ enum {
 /* Parameters for the waiting for iATU enabled routine */
 #define LINK_WAIT_MAX_IATU_RETRIES	5
 #define LINK_WAIT_IATU			10000
+
+#define PCIE_TYPE0_HDR_DBI2_OFFSET      0x100000
 
 static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
 {
@@ -165,7 +201,7 @@ static u32 __rk_pcie_read_apb(struct rk_pcie *rk_pcie, void __iomem *base,
 
 	ret = rk_pcie_read(base + reg, size, &val);
 	if (ret)
-		dev_err(rk_pcie->pci->dev, "Read APB address failed\n");
+		dev_err(rk_pcie->dev, "Read APB address failed\n");
 
 	return val;
 }
@@ -177,7 +213,7 @@ static void __rk_pcie_write_apb(struct rk_pcie *rk_pcie, void __iomem *base,
 
 	ret = rk_pcie_write(base + reg, size, val);
 	if (ret)
-		dev_err(rk_pcie->pci->dev, "Write APB address failed\n");
+		dev_err(rk_pcie->dev, "Write APB address failed\n");
 }
 
 static inline u32 rk_pcie_readl_apb(struct rk_pcie *rk_pcie, u32 reg)
@@ -272,6 +308,10 @@ static void rk_pcie_setup_host(struct rk_pcie *rk_pcie)
 	val = readl(rk_pcie->dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
 	val |= PORT_LOGIC_SPEED_CHANGE;
 	writel(val, rk_pcie->dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
+
+	/* Disable BAR0 BAR1 */
+	writel(0, rk_pcie->dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET + 0x10 + 0 * 4);
+	writel(0, rk_pcie->dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET + 0x10 + 1 * 4);
 
 	rk_pcie_dbi_write_enable(rk_pcie, false);
 }
@@ -429,7 +469,6 @@ static int rockchip_pcie_wr_conf(struct udevice *bus, pci_dev_t bdf,
 	debug("PCIE CFG write: (b,d,f)=(%2d,%2d,%2d)\n",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
 	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
-
 	if (!rk_pcie_addr_valid(bdf, pcie->first_busno)) {
 		debug("- out of range\n");
 		return 0;
@@ -469,10 +508,10 @@ static void rk_pcie_debug_dump(struct rk_pcie *rk_pcie)
 #if RK_PCIE_DBG
 	u32 loop;
 
-	dev_info(rk_pcie->dev, "ltssm = 0x%x\n",
+	dev_err(rk_pcie->dev, "ltssm = 0x%x\n",
 		 rk_pcie_readl_apb(rk_pcie, PCIE_CLIENT_LTSSM_STATUS));
 	for (loop = 0; loop < 64; loop++)
-		dev_info(rk_pcie->dev, "fifo_status = 0x%x\n",
+		dev_err(rk_pcie->dev, "fifo_status = 0x%x\n",
 			 rk_pcie_readl_apb(rk_pcie, PCIE_CLIENT_DBG_FIFO_STATUS));
 #endif
 }
@@ -556,6 +595,7 @@ static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
 	}
 
 	dev_err(priv->dev, "PCIe-%d Link Fail\n", priv->dev->seq);
+	rk_pcie_disable_ltssm(priv);
 	return -EINVAL;
 }
 
@@ -592,7 +632,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	ret = generic_phy_init(&priv->phy);
 	if (ret) {
 		dev_err(dev, "failed to init phy (ret=%d)\n", ret);
-		return ret;
+		goto err_disable_3v3;
 	}
 
 	ret = generic_phy_power_on(&priv->phy);
@@ -635,6 +675,9 @@ err_power_off_phy:
 	generic_phy_power_off(&priv->phy);
 err_exit_phy:
 	generic_phy_exit(&priv->phy);
+err_disable_3v3:
+	if(priv->vpcie3v3)
+		regulator_set_enable(priv->vpcie3v3, false);
 	return ret;
 }
 
@@ -643,17 +686,18 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 	struct rk_pcie *priv = dev_get_priv(dev);
 	u32 max_link_speed;
 	int ret;
+	struct resource res;
 
-	priv->dbi_base = (void *)dev_read_addr_index(dev, 0);
-	if (!priv->dbi_base)
+	ret = dev_read_resource_byname(dev, "pcie-dbi", &res);
+	if (ret)
 		return -ENODEV;
-
+	priv->dbi_base = (void *)(res.start);
 	dev_dbg(dev, "DBI address is 0x%p\n", priv->dbi_base);
 
-	priv->apb_base = (void *)dev_read_addr_index(dev, 1);
-	if (!priv->apb_base)
+	ret = dev_read_resource_byname(dev, "pcie-apb", &res);
+	if (ret)
 		return -ENODEV;
-
+	priv->apb_base = (void *)(res.start);
 	dev_dbg(dev, "APB address is 0x%p\n", priv->apb_base);
 
 	ret = gpio_request_by_name(dev, "reset-gpios", 0,
@@ -716,7 +760,7 @@ static int rockchip_pcie_probe(struct udevice *dev)
 
 	ret = rockchip_pcie_init_port(dev);
 	if (ret)
-		return ret;
+		goto free_rst;
 
 	dev_info(dev, "PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n",
 		 dev->seq, rk_pcie_get_link_speed(priv),
@@ -729,17 +773,59 @@ static int rockchip_pcie_probe(struct udevice *dev)
 			priv->io.bus_start  = hose->regions[ret].bus_start;  /* IO_bus_addr */
 			priv->io.size       = hose->regions[ret].size;      /* IO size */
 		} else if (hose->regions[ret].flags == PCI_REGION_MEM) {
-			priv->mem.phys_start = hose->regions[ret].phys_start; /* MEM base */
-			priv->mem.bus_start  = hose->regions[ret].bus_start;  /* MEM_bus_addr */
-			priv->mem.size	     = hose->regions[ret].size;	    /* MEM size */
+			if (upper_32_bits(hose->regions[ret].bus_start)) {/* MEM64 base */
+				priv->mem64.phys_start = hose->regions[ret].phys_start;
+				priv->mem64.bus_start  = hose->regions[ret].bus_start;
+				priv->mem64.size       = hose->regions[ret].size;
+			} else { /* MEM32 base */
+				priv->mem.phys_start = hose->regions[ret].phys_start;
+				priv->mem.bus_start  = hose->regions[ret].bus_start;
+				priv->mem.size	     = hose->regions[ret].size;
+			}
 		} else if (hose->regions[ret].flags == PCI_REGION_SYS_MEMORY) {
 			priv->cfg_base = (void *)(priv->io.phys_start - priv->io.size);
 			priv->cfg_size = priv->io.size;
+		} else if (hose->regions[ret].flags == PCI_REGION_PREFETCH) {
+			dev_err(dev, "don't support prefetchable memory, please fix your dtb.\n");
 		} else {
-			dev_err(dev, "invalid flags type!\n");
+			dev_err(dev, "invalid flags type\n");
 		}
 	}
 
+#ifdef CONFIG_SYS_PCI_64BIT
+	dev_dbg(dev, "Config space: [0x%p - 0x%p, size 0x%llx]\n",
+		priv->cfg_base, priv->cfg_base + priv->cfg_size,
+		priv->cfg_size);
+
+	dev_dbg(dev, "IO space: [0x%llx - 0x%llx, size 0x%llx]\n",
+		priv->io.phys_start, priv->io.phys_start + priv->io.size,
+		priv->io.size);
+
+	dev_dbg(dev, "IO bus:   [0x%llx - 0x%llx, size 0x%llx]\n",
+		priv->io.bus_start, priv->io.bus_start + priv->io.size,
+		priv->io.size);
+
+	dev_dbg(dev, "MEM32 space: [0x%llx - 0x%llx, size 0x%llx]\n",
+		priv->mem.phys_start, priv->mem.phys_start + priv->mem.size,
+		priv->mem.size);
+
+	dev_dbg(dev, "MEM32 bus:   [0x%llx - 0x%llx, size 0x%llx]\n",
+		priv->mem.bus_start, priv->mem.bus_start + priv->mem.size,
+		priv->mem.size);
+
+	dev_dbg(dev, "MEM64 space: [0x%llx - 0x%llx, size 0x%llx]\n",
+		priv->mem64.phys_start, priv->mem64.phys_start + priv->mem64.size,
+		priv->mem64.size);
+
+	dev_dbg(dev, "MEM64 bus:   [0x%llx - 0x%llx, size 0x%llx]\n",
+		priv->mem64.bus_start, priv->mem64.bus_start + priv->mem64.size,
+		priv->mem64.size);
+
+	rk_pcie_prog_outbound_atu_unroll(priv, PCIE_ATU_REGION_INDEX2,
+					 PCIE_ATU_TYPE_MEM,
+					 priv->mem64.phys_start,
+					 priv->mem64.bus_start, priv->mem64.size);
+#else
 	dev_dbg(dev, "Config space: [0x%p - 0x%p, size 0x%llx]\n",
 		priv->cfg_base, priv->cfg_base + priv->cfg_size,
 		priv->cfg_size);
@@ -752,19 +838,24 @@ static int rockchip_pcie_probe(struct udevice *dev)
 		priv->io.bus_start, priv->io.bus_start + priv->io.size,
 		priv->io.size);
 
-	dev_dbg(dev, "MEM space: [0x%llx - 0x%llx, size 0x%x]\n",
+	dev_dbg(dev, "MEM32 space: [0x%llx - 0x%llx, size 0x%x]\n",
 		priv->mem.phys_start, priv->mem.phys_start + priv->mem.size,
 		priv->mem.size);
 
-	dev_dbg(dev, "MEM bus:   [0x%x - 0x%x, size 0x%x]\n",
+	dev_dbg(dev, "MEM32 bus:   [0x%x - 0x%x, size 0x%x]\n",
 		priv->mem.bus_start, priv->mem.bus_start + priv->mem.size,
 		priv->mem.size);
 
+#endif
 	rk_pcie_prog_outbound_atu_unroll(priv, PCIE_ATU_REGION_INDEX0,
 					 PCIE_ATU_TYPE_MEM,
 					 priv->mem.phys_start,
 					 priv->mem.bus_start, priv->mem.size);
+
 	return 0;
+free_rst:
+	dm_gpio_free(dev, &priv->rst_gpio);
+	return ret;
 }
 
 static const struct dm_pci_ops rockchip_pcie_ops = {
@@ -773,8 +864,11 @@ static const struct dm_pci_ops rockchip_pcie_ops = {
 };
 
 static const struct udevice_id rockchip_pcie_ids[] = {
+	{ .compatible = "rockchip,rk3528-pcie" },
+	{ .compatible = "rockchip,rk3562-pcie" },
 	{ .compatible = "rockchip,rk3568-pcie" },
 	{ .compatible = "rockchip,rk3588-pcie" },
+	{ .compatible = "rockchip,rk3576-pcie" },
 	{ }
 };
 

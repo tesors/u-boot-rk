@@ -1,0 +1,31 @@
+if TARGET_EVB_RK3528
+
+config SYS_BOARD
+	default "evb_rk3528"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "evb_rk3528"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
+
+if TARGET_IXON_RK3528
+
+config SYS_BOARD
+	default "evb_rk3528"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "ixon_rk3528"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
