@@ -41,6 +41,7 @@ def generate_atf_binary(bl31_file_name):
             atf.write(data)
 
 def main():
+    print("log0_decode_bl31.py\n");
     if "BL31" in os.environ:
         bl31_elf=os.getenv("BL31");
     elif os.path.isfile("./bl31.elf"):
