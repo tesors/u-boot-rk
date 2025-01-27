@@ -177,6 +177,7 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
         fit_file.close()
 
 def generate_atf_binary(bl31_file_name):
+    print("log1_teso\n.");
     with open(bl31_file_name) as bl31_file:
         bl31 = ELFFile(bl31_file)
 
