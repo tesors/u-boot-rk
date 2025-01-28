@@ -116,6 +116,9 @@ function gen_bl31_node()
 	${srctree}/arch/arm/mach-rockchip/decode_bl31.py
 
 	echo "executing gen_bl31_node" >> gen_nodes.txt
+	echo pwd >> gen_nodes.txt
+	echo "Matching files : " >> gen_nodes.txt
+	ls bl31_0x* >> gen_nodes.txt
 
 	NUM=1
 	for ATF in `ls -1 -S bl31_0x*.bin`
