@@ -43,10 +43,13 @@ def generate_atf_binary(bl31_file_name):
 def main():
     print("log0_decode_bl31.py\n");
     if "BL31" in os.environ:
+        print("log0_BL31_IS_OS_ENV\n");
         bl31_elf=os.getenv("BL31");
     elif os.path.isfile("./bl31.elf"):
+        print("log0_BL31_OS_PATH_IS_FILE\n");
         bl31_elf = "./bl31.elf"
     else:
+        print("log0_MAKE_DUMMY_BL31_ELF\n");
         os.system("echo 'int main(){}' > bl31.c")
         os.system("${CROSS_COMPILE}gcc -c bl31.c -o bl31.elf")
         bl31_elf = "./bl31.elf"
