@@ -121,7 +121,7 @@ function gen_bl31_node()
 	ls bl31_0x* >> gen_nodes.txt
 
 	NUM=1
-	for ATF in `ls -1 -S bl31_0x*`
+	for ATF in `ls -1 -S bl31_0x*.bin`
 	do
 		echo "${ATF}" >> gen_nodes.txt
 
