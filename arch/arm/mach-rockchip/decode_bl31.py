@@ -35,35 +35,24 @@ def unpack_elf(filename):
     return segments
 
 def generate_atf_binary(bl31_file_name):
-    with open("gen_nodes.txt", "a") as log_file:  # Open file in append mode
-        for index, entry, paddr, data in unpack_elf(bl31_file_name):
-            file_name = 'bl31_0x%08x.bin' % paddr
-
-            # Write the decoded binary file
-            with open(file_name, "wb") as atf:
-                atf.write(data)
-
-            # Log the file name in gen_nodes.txt
-            log_file.write("Decoded: {}\n".format(file_name))
+    for index, entry, paddr, data in unpack_elf(bl31_file_name):
+        file_name = 'bl31_0x%08x.bin' % paddr
+        with open(file_name, "wb") as atf:
+            atf.write(data)
 
 def main():
-    with open("gen_nodes.txt", "a") as log_file:  # Open file in append mode
-        if "BL31" in os.environ:
-            bl31_elf = os.getenv("BL31")
-            log_file.write("BL31 environment variable found, using: " + bl31_elf + "\n")
-        elif os.path.isfile("./bl31.elf"):
-            bl31_elf = "./bl31.elf"
-            log_file.write("Found bl31.elf in the current directory.\n")
-        else:
-            os.system("echo 'int main(){}' > bl31.c")
-            os.system("${CROSS_COMPILE}gcc -c bl31.c -o bl31.elf")
-            bl31_elf = "./bl31.elf"
-            logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-            logging.warning('BL31 file bl31.elf NOT found, resulting binary is non-functional')
-            logging.warning('Please read Building section in doc/README.rockchip')
-            log_file.write("BL31 not found, generated a dummy bl31.elf.\n")
-
-    generate_atf_binary(bl31_elf)
+    if "BL31" in os.environ:
+        bl31_elf=os.getenv("BL31");
+    elif os.path.isfile("./bl31.elf"):
+        bl31_elf = "./bl31.elf"
+    else:
+        os.system("echo 'int main(){}' > bl31.c")
+        os.system("${CROSS_COMPILE}gcc -c bl31.c -o bl31.elf")
+        bl31_elf = "./bl31.elf"
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+        logging.warning(' BL31 file bl31.elf NOT found, resulting binary is non-functional')
+        logging.warning(' Please read Building section in doc/README.rockchip')
+    generate_atf_binary(bl31_elf);
 
 if __name__ == "__main__":
     main()
