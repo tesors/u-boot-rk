@@ -31,9 +31,6 @@ function gen_uboot_node()
 		return
 	fi
 
-	echo "executing gen_uboot_node" >> gen_nodes.txt
-	ls bl31_0x* >> gen_nodes.txt
-	echo "*\\\\\\\\\*" >> gen_nodes.txt
 	UBOOT="u-boot-nodtb.bin"
 	echo "		uboot {
 			description = \"U-Boot\";
@@ -114,26 +111,7 @@ function gen_kfdt_node()
 
 function gen_bl31_node()
 {
-	echo "executing gen_bl31_node" >> gen_nodes.txt
-	echo "srctree is: ${srctree}" >> gen_nodes.txt
-	pwd >> gen_nodes.txt
-
-	echo "*\\\\\\\\\*" >> gen_nodes.txt
-
-	echo "Python 3 version:" >> gen_nodes.txt
-	python3 --version >> gen_nodes.txt
-
-	echo "Python 2 version:" >> gen_nodes.txt
-	python2 --version >> gen_nodes.txt
-
-	echo "Default Python version:" >> gen_nodes.txt
-	python --version >> gen_nodes.txt
-
-
-	echo "*\\\\\\\\\*" >> gen_nodes.txt
-# 	ls -l ${srctree}/source/arch/arm/mach-rockchip/decode_bl31.py >> gen_nodes.txt
-
-	python3 source/arch/arm/mach-rockchip/decode_bl31.py
+	${srctree}/source/arch/arm/mach-rockchip/decode_bl31.py
 	# Run the Python script and check exit status
     if [ $? -ne 0 ]; then
         echo "decode_bl31.py FAILED to execute!" >> gen_nodes.txt
@@ -142,7 +120,6 @@ function gen_bl31_node()
     fi
 
 	echo "Matching files : " >> gen_nodes.txt
-# 	ls bl31_0x* >> gen_nodes.txt
 	echo "*\\\\\\\\\*" >> gen_nodes.txt
 
 	echo "Inside for loop!" >> gen_nodes.txt
