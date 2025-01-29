@@ -115,7 +115,15 @@ function gen_kfdt_node()
 function gen_bl31_node()
 {
 	${srctree}/arch/arm/mach-rockchip/decode_bl31.py
+	# Run the Python script and check exit status
+    if [ $? -ne 0 ]; then
+        echo "decode_bl31.py FAILED to execute!" >> gen_nodes.txt
+        exit 1  # Stop execution with an error
+    else
+        echo "decode_bl31.py executed successfully!" >> gen_nodes.txt
+    fi
 
+	echo "srctree is: ${srctree}" >> gen_nodes.txt
 	echo "executing gen_bl31_node" >> gen_nodes.txt
 	pwd >> gen_nodes.txt
 	echo "Matching files : " >> gen_nodes.txt
