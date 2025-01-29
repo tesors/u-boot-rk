@@ -133,7 +133,7 @@ function gen_bl31_node()
 	echo "*\\\\\\\\\*" >> gen_nodes.txt
 # 	ls -l ${srctree}/source/arch/arm/mach-rockchip/decode_bl31.py >> gen_nodes.txt
 
-	python2 source/arch/arm/mach-rockchip/decode_bl31.py
+	python3 source/arch/arm/mach-rockchip/decode_bl31.py
 	# Run the Python script and check exit status
     if [ $? -ne 0 ]; then
         echo "decode_bl31.py FAILED to execute!" >> gen_nodes.txt
