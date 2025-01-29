@@ -111,16 +111,13 @@ function gen_kfdt_node()
 
 function gen_bl31_node()
 {
-	${srctree}/source/arch/arm/mach-rockchip/decode_bl31.py
+	${srctree}/arch/arm/mach-rockchip/decode_bl31.py
 	# Run the Python script and check exit status
     if [ $? -ne 0 ]; then
         echo "decode_bl31.py FAILED to execute!" >> gen_nodes.txt
     else
         echo "decode_bl31.py executed successfully!" >> gen_nodes.txt
     fi
-
-	echo "Matching files : " >> gen_nodes.txt
-	echo "*\\\\\\\\\*" >> gen_nodes.txt
 
 	echo "Inside for loop!" >> gen_nodes.txt
 	NUM=1
