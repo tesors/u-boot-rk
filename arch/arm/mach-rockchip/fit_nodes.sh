@@ -118,7 +118,7 @@ function gen_bl31_node()
 	echo "srctree is: ${srctree}" >> gen_nodes.txt
 	pwd >> gen_nodes.txt
 
-	${srctree}/arch/arm/mach-rockchip/decode_bl31.py
+	${srctree}/source/arch/arm/mach-rockchip/decode_bl31.py
 	# Run the Python script and check exit status
     if [ $? -ne 0 ]; then
         echo "decode_bl31.py FAILED to execute!" >> gen_nodes.txt
