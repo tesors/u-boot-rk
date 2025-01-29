@@ -31,9 +31,9 @@ function gen_uboot_node()
 		return
 	fi
 
-	touch gen_nodes.txt
 	echo "executing gen_uboot_node" >> gen_nodes.txt
-
+	ls bl31_0x* >> gen_nodes.txt
+	echo "*\\\\\\\\\*" >> gen_nodes.txt
 	UBOOT="u-boot-nodtb.bin"
 	echo "		uboot {
 			description = \"U-Boot\";
@@ -69,6 +69,7 @@ function gen_fdt_node()
 	if [ -z ${UBOOT_LOAD_ADDR} ]; then
 		return
 	fi
+	echo "*\\\\\\\\\*" >> gen_nodes.txt
 	echo "executing gen_fdt_node" >> gen_nodes.txt
 	echo "		fdt {
 			description = \"U-Boot dtb\";
@@ -119,10 +120,13 @@ function gen_bl31_node()
 	pwd >> gen_nodes.txt
 	echo "Matching files : " >> gen_nodes.txt
 	ls bl31_0x* >> gen_nodes.txt
+	echo "*\\\\\\\\\*" >> gen_nodes.txt
 
+	echo "Inside for loop!" >> gen_nodes.txt
 	NUM=1
 	for ATF in `ls -1 -S bl31_0x*.bin`
 	do
+
 		echo "${ATF}" >> gen_nodes.txt
 
 		ATF_LOAD_ADDR=`echo ${ATF} | awk -F "_" '{ printf $2 }' | awk -F "." '{ printf $1 }'`
