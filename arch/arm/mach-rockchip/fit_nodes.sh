@@ -66,8 +66,7 @@ function gen_fdt_node()
 	if [ -z ${UBOOT_LOAD_ADDR} ]; then
 		return
 	fi
-	echo "*\\\\\\\\\*" >> gen_nodes.txt
-	echo "executing gen_fdt_node" >> gen_nodes.txt
+
 	echo "		fdt {
 			description = \"U-Boot dtb\";
 			data = /incbin/(\"./u-boot.dtb\");
@@ -112,20 +111,10 @@ function gen_kfdt_node()
 function gen_bl31_node()
 {
 	${srctree}/arch/arm/mach-rockchip/decode_bl31.py
-	# Run the Python script and check exit status
-    if [ $? -ne 0 ]; then
-        echo "decode_bl31.py FAILED to execute!" >> gen_nodes.txt
-    else
-        echo "decode_bl31.py executed successfully!" >> gen_nodes.txt
-    fi
 
-	echo "Inside for loop!" >> gen_nodes.txt
 	NUM=1
 	for ATF in `ls -1 -S bl31_0x*.bin`
 	do
-
-		echo "${ATF}" >> gen_nodes.txt
-
 		ATF_LOAD_ADDR=`echo ${ATF} | awk -F "_" '{ printf $2 }' | awk -F "." '{ printf $1 }'`
 		# only atf-1 support compress
 		if [ "${COMPRESSION}" != "none" -a ${NUM} -eq 1  ]; then
@@ -428,4 +417,3 @@ echo "	};
 };
 "
 }
-
