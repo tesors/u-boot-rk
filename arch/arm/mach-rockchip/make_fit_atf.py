@@ -140,8 +140,6 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
     """
     Generate FIT script for ATF image.
     """
-    print("file_name = ",fit_file_name,"\n");
-    logging.warning(' generate_atf_fit_dts')
     if fit_file_name != sys.stdout:
         fit_file = open(fit_file_name, "wb")
     else:
@@ -163,7 +161,6 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
 
     with open(bl31_file_name) as bl31_file:
         bl31 = ELFFile(bl31_file)
-        print("input_before_for_loop\n");
         for i in range(bl31.num_segments()):
             seg = bl31.get_segment(i)
             if ('PT_LOAD' == seg.__getitem__(ELF_SEG_P_TYPE)):
@@ -180,7 +177,6 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
         fit_file.close()
 
 def generate_atf_binary(bl31_file_name):
-    print("log1_teso\n.");
     with open(bl31_file_name) as bl31_file:
         bl31 = ELFFile(bl31_file)
 
