@@ -20,7 +20,55 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND IXON_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND \
+	"fdt addr ${fdt_addr} && fdt get value bootargs /chosen bootargs;" \
+	"test -n \"${BOOT_ORDER}\" || setenv BOOT_ORDER \"A B\";" \
+	"test -n \"${BOOT_A_LEFT}\" || setexpr BOOT_A_LEFT 3;" \
+	"test -n \"${BOOT_B_LEFT}\" || setexpr BOOT_B_LEFT 3;" \
+	"test -n \"${BOOT_DEV}\" || setenv BOOT_DEV \"mmc 0:4\";" \
+	"test -n \"${FRESET}\" || setenv FRESET \"0\";" \
+	"setenv silent 1;" \
+	"setenv bootpart;" \
+	"echo \"Bootpart: ${bootpart} detected\";" \
+	"echo \"Boot left A: ${BOOT_A_LEFT} attempts remaining\";" \
+	"echo \"Boot left B: ${BOOT_B_LEFT} attempts remaining\";" \
+	"echo \"Boot order:  ${BOOT_ORDER} \";" \
+	"echo \"Bootargs:  ${bootargs} \";" \
+	"for BOOT_SLOT in \"${BOOT_ORDER}\"; do;" \
+	"  if test \"x${bootpart}\" != \"x\"; then;" \
+	"    echo \"No bootpart: ${bootpart} detected\";" \
+	"  elif test \"x${BOOT_SLOT}\" = \"xA\"; then;" \
+	"    if test ${BOOT_A_LEFT} > 0; then;" \
+	"      setexpr BOOT_A_LEFT ${BOOT_A_LEFT} - 1;" \
+	"      echo \"Found valid RAUC slot xA, ${BOOT_A_LEFT} attempts remaining\";" \
+	"      setenv bootpart \"/dev/mmcblk1p4 rootwait\";" \
+	"      setenv raucslot \"A\";" \
+	"      setenv BOOT_DEV \"mmc 0:4\";" \
+	"    fi;" \
+	"  elif test \"x${BOOT_SLOT}\" = \"xB\"; then;" \
+	"    if test ${BOOT_B_LEFT} > 0; then;" \
+	"      setexpr BOOT_B_LEFT ${BOOT_B_LEFT} - 1;" \
+	"      echo \"Found valid RAUC slot xB, ${BOOT_B_LEFT} attempts remaining\";" \
+	"      setenv bootpart \"/dev/mmcblk1p5 rootwait\";" \
+	"      setenv raucslot \"B\";" \
+	"      setenv BOOT_DEV \"mmc 0:5\";" \
+	"    fi;" \
+	"  fi;" \
+	"done;" \
+	"if test -n \"${bootpart}\"; then;" \
+	"  setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk1p4 freset=$FRESET quiet\";" \
+	"  setenv FRESET \"0\";;" \
+	"  saveenv;" \
+	"else;" \
+	"  echo \"No valid RAUC slot found. Resetting tries to 3\";" \
+	"  env default -a;" \
+	"  setenv BOOT_A_LEFT 3;" \
+	"  setenv BOOT_B_LEFT 3;" \
+	"  saveenv;" \
+	"  fastboot usb 0;" \
+	"fi;" \
+	"load ${BOOT_DEV} ${kernel_addr_r} /boot/fitImage;" \
+	"bootm ${kernel_addr_r};"
 
 #define PARTS_IXON \
 	"uuid_disk=${uuid_gpt_disk};" \
@@ -38,8 +86,6 @@
 #ifndef CONFIG_SPL_BUILD
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"dev_dtb=/boot/rk3528-radxa-e20c.dtb\0 root_a=/dev/mmcblk1p4\0 root_b=/dev/mmcblk1p5\0"\
-	"mmc_a=mmc 0:4\0 mmc_b=mmc 0:5\0 system_p=/dev/mmcblk0p6\0"\
 	ENV_MEM_LAYOUT_SETTINGS \
 	"partitions=" PARTS_IXON \
 	ROCKCHIP_DEVICE_SETTINGS \
