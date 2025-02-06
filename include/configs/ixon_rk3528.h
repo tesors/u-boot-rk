@@ -86,6 +86,8 @@
 #ifndef CONFIG_SPL_BUILD
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"dev_dtb=/boot/rk3528-radxa-e20c.dtb\0 root_a=/dev/mmcblk1p4\0 root_b=/dev/mmcblk1p5\0"\
+	"mmc_a=mmc 0:4\0 mmc_b=mmc 0:5\0 system_p=/dev/mmcblk0p6\0"\
 	ENV_MEM_LAYOUT_SETTINGS \
 	"partitions=" PARTS_IXON \
 	ROCKCHIP_DEVICE_SETTINGS \
