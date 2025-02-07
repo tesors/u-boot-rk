@@ -41,7 +41,7 @@
 	"    if test ${BOOT_A_LEFT} > 0; then;" \
 	"      setexpr BOOT_A_LEFT ${BOOT_A_LEFT} - 1;" \
 	"      echo \"Found valid RAUC slot xA, ${BOOT_A_LEFT} attempts remaining\";" \
-	"      setenv bootpart \"/dev/mmcblk1p4 rootwait\";" \
+	"      setenv bootpart \"/dev/mmcblk0p4 rootwait\";" \
 	"      setenv raucslot \"A\";" \
 	"      setenv BOOT_DEV \"mmc 0:4\";" \
 	"    fi;" \
@@ -49,14 +49,14 @@
 	"    if test ${BOOT_B_LEFT} > 0; then;" \
 	"      setexpr BOOT_B_LEFT ${BOOT_B_LEFT} - 1;" \
 	"      echo \"Found valid RAUC slot xB, ${BOOT_B_LEFT} attempts remaining\";" \
-	"      setenv bootpart \"/dev/mmcblk1p5 rootwait\";" \
+	"      setenv bootpart \"/dev/mmcblk0p5 rootwait\";" \
 	"      setenv raucslot \"B\";" \
 	"      setenv BOOT_DEV \"mmc 0:5\";" \
 	"    fi;" \
 	"  fi;" \
 	"done;" \
 	"if test -n \"${bootpart}\"; then;" \
-	"  setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk1p4 freset=$FRESET quiet\";" \
+	"  setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk0p4 freset=$FRESET quiet\";" \
 	"  setenv FRESET \"0\";;" \
 	"  saveenv;" \
 	"else;" \
@@ -73,7 +73,7 @@
 #define PARTS_IXON \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=idbloader,start=32KB,size=1136KB;"\
-	"name=uboot,start=1168KB,size=2528KB;"\
+	"name=uboot,start=1168KB,size=2928KB;"\
 	"name=dfu,start=4MB,size=64MB,uuid=${uuid_gpt_dfu};"\
 	"name=roota,start=68MB,size=2048MB,uuid=${uuid_gpt_roota};" \
 	"name=rootb,start=2116MB,size=2048MB,uuid=${uuid_gpt_rootb};" \
@@ -86,7 +86,7 @@
 #ifndef CONFIG_SPL_BUILD
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"dev_dtb=/boot/rk3528-radxa-e20c.dtb\0 root_a=/dev/mmcblk1p4\0 root_b=/dev/mmcblk1p5\0"\
+	"dev_dtb=/boot/rk3528-radxa-e20c.dtb\0 root_a=/dev/mmcblk0p4\0 root_b=/dev/mmcblk0p5\0"\
 	"mmc_a=mmc 0:4\0 mmc_b=mmc 0:5\0 system_p=/dev/mmcblk0p6\0"\
 	ENV_MEM_LAYOUT_SETTINGS \
 	"partitions=" PARTS_IXON \
