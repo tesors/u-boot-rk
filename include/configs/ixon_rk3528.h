@@ -73,7 +73,7 @@
 	"fastboot usb 0;" \
 	"fi;" \
 	"load ${BOOT_DEV} ${kernel_addr_r}  /boot/Image;" \
-	"load ${BOOT_DEV} ${fdt_addr_r}  ${DEV_DTB};" \
+	"load ${BOOT_DEV} ${fdt_addr_r}  /boot/rk3528-radxa-e20c.dtb;" \
 	"load ${BOOT_DEV} ${ramdisk_addr_r}  /boot/uramdisk.image.gz;" \
 	"booti ${kernel_addr_r} - ${fdt_addr_r};"
 
