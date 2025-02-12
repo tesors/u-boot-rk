@@ -80,7 +80,7 @@
 #define PARTS_IXON \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=idbloader,start=32KB,size=1136KB;"\
-	"name=uboot,start=1168KB,size=2928KB;"\
+	"name=uboot,start=1168KB,size=2528KB;"\
 	"name=dfu,start=4MB,size=64MB,uuid=${uuid_gpt_dfu};"\
 	"name=roota,start=68MB,size=2048MB,uuid=${uuid_gpt_roota};" \
 	"name=rootb,start=2116MB,size=2048MB,uuid=${uuid_gpt_rootb};" \
