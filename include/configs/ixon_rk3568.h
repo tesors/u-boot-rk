@@ -39,7 +39,7 @@
 	 "echo \"Boot left B: ${BOOT_B_LEFT} attempts remaining\";"\
 	 "echo \"Boot order:  ${BOOT_ORDER} \";"\
 	 "echo \"Bootargs:  ${bootargs} \";"\
-	 "for BOOT_SLOT in \"${BOOT_ORDER}\"; do"\
+	 "for BOOT_SLOT in \"${BOOT_ORDER}\"; do;"\
 	 "if test \"x${bootpart}\" != \"x\"; then;"\
 	 "	echo \"No bootpart: ${bootpart} detected\";"\
 	 "elif test \"x${BOOT_SLOT}\" = \"xA\"; then;"\
@@ -63,7 +63,7 @@
 	 "setenv bootcmd_pxe \"\";"\
 	 "if test -n \"${bootpart}\"; then;"\
 	 "	setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk0p3 freset=$FRESET quiet\";"\
-	 "	setenv FRESET \"0\";"\
+	 "	setenv FRESET \"0\";;"\
 	 "	saveenv;"\
 	 "else;"\
 	 "	echo \"No valid RAUC slot found. Resetting tries to 3\";"\
@@ -76,7 +76,7 @@
 	 "load ${BOOT_DEV} ${kernel_addr_r}  /boot/Image;"\
 	 "load ${BOOT_DEV} ${fdt_addr_r}  /boot/rk3568-ixon-3568q.dtb;"\
 	 "load ${BOOT_DEV} ${ramdisk_addr_r}  /boot/uramdisk.image.gz;"\
-	 "booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r};"\
+	 "booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r};"
  
  
  #define PARTS_IXON \
