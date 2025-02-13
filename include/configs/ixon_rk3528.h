@@ -61,7 +61,7 @@
 	"done;" \
 	"setenv bootcmd_pxe "";" \
 	"if test -n \"${bootpart}\"; then;" \
-	"	setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk0p6 freset=$FRESET quiet\";" \
+	"	setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk0p5 freset=$FRESET quiet\";" \
 	"	setenv FRESET \"0\";;" \
 	"	saveenv;" \
 	"else;" \
@@ -84,7 +84,7 @@
 	"name=roota,start=68MB,size=2048MB,uuid=${uuid_gpt_roota};" \
 	"name=rootb,start=2116MB,size=2048MB,uuid=${uuid_gpt_rootb};" \
     "name=system,start=4164MB,size=1024MB,uuid=${uuid_gpt_system};" \
-	"name=data,size=1024MB,uuid=${uuid_gpt_data},type=data;\0" \
+	"name=data,size=9216MB,uuid=${uuid_gpt_data},type=data;\0" \
 
 #define IXON_BOOTCOMMAND			\
 	"run scan_dev_for_boot_part;"
