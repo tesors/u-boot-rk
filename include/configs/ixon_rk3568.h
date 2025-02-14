@@ -26,12 +26,12 @@
 	 "test -n \"${BOOT_ORDER}\" || setenv BOOT_ORDER \"A B\";"\
 	 "test -n \"${BOOT_A_LEFT}\" || setexpr BOOT_A_LEFT 3;"\
 	 "test -n \"${BOOT_B_LEFT}\" || setexpr BOOT_B_LEFT 3;"\
-	 "test -n \"${BOOT_DEV}\" || setenv BOOT_DEV \"mmc 0:2\";"\
+	 "test -n \"${BOOT_DEV}\" || setenv BOOT_DEV \"mmc 0:3\";"\
 	 "test -n \"${FRESET}\" || setenv FRESET \"0\";"\
-	 "test -n \"${ROOT_A}\" || setenv ROOT_A \"/dev/mmcblk0p2\";"\
-	 "test -n \"${ROOT_B}\" || setenv ROOT_B \"/dev/mmcblk0p3\";"\
-	 "test -n \"${MMC_A}\" || setenv MMC_A \"mmc 0:2\";"\
-	 "test -n \"${MMC_B}\" || setenv MMC_B \"mmc 0:3\";"\
+	 "test -n \"${ROOT_A}\" || setenv ROOT_A \"/dev/mmcblk0p3\";"\
+	 "test -n \"${ROOT_B}\" || setenv ROOT_B \"/dev/mmcblk0p4\";"\
+	 "test -n \"${MMC_A}\" || setenv MMC_A \"mmc 0:3\";"\
+	 "test -n \"${MMC_B}\" || setenv MMC_B \"mmc 0:4\";"\
 	 "setenv silent 1;"\
 	 "setenv bootpart;"\
 	 "echo \"Bootpart: ${bootpart} detected\";"\
@@ -62,7 +62,7 @@
 	 "done;"\
 	 "setenv bootcmd_pxe \"\";"\
 	 "if test -n \"${bootpart}\"; then;"\
-	 "	setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk0p4 freset=$FRESET quiet\";"\
+	 "	setenv bootargs \"console=${console} root=${bootpart} panic=10 rauc.slot=${raucslot} rootrw=/dev/mmcblk0p5 freset=$FRESET quiet\";"\
 	 "	setenv FRESET \"0\";;"\
 	 "	saveenv;"\
 	 "else;"\
@@ -81,7 +81,8 @@
  
  #define PARTS_IXON \
 	 "uuid_disk=${uuid_gpt_disk};" \
-	 "name=dfu,start=16MB,size=16MB,uuid=${uuid_gpt_dfu};" \
+	 "name=dummy1,start=16MB,size=8MB,uuid=${uuid_gpt_dfu};" \
+	 "name=dummy2,start=24MB,size=8MB,uuid=${uuid_gpt_dfu};" \
 	 "name=roota,start=32MB,size=2048MB,uuid=${uuid_gpt_roota};" \
 	 "name=rootb,start=2080MB,size=2048MB,uuid=${uuid_gpt_rootb};" \
 	 "name=data,size=-,uuid=${uuid_gpt_data},type=data;\0" \
