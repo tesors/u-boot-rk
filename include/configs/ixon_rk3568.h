@@ -81,8 +81,8 @@
  
  #define PARTS_IXON \
 	 "uuid_disk=${uuid_gpt_disk};" \
-	 "name=dummy1,start=16MB,size=8MB,uuid=${uuid_gpt_dfu};" \
-	 "name=dummy2,start=24MB,size=8MB,uuid=${uuid_gpt_dfu};" \
+	 "name=dummy1,start=16MB,size=8MB,uuid=${uuid_gpt_dummy1};" \
+	 "name=dummy2,start=24MB,size=8MB,uuid=${uuid_gpt_dummy2};" \
 	 "name=roota,start=32MB,size=2048MB,uuid=${uuid_gpt_roota};" \
 	 "name=rootb,start=2080MB,size=2048MB,uuid=${uuid_gpt_rootb};" \
 	 "name=data,size=-,uuid=${uuid_gpt_data},type=data;\0" \
